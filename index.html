@@ -3,57 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeoWAP v1.0</title>
+    <title>NeoWAP v1.1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            margin: 0; padding: 0; background: #000; color: #0f0; 
-            font-family: monospace; font-size: 18px; 
-            image-rendering: pixelated; overflow: hidden;
-        }
-        .screen {
-            max-width: 480px; margin: 0 auto; 
-            border: 8px solid #222; background: #001100; 
-            padding: 15px; min-height: 100vh; box-sizing: border-box;
-        }
-        .header { 
-            text-align: center; color: #0f0; margin-bottom: 20px; 
-            font-size: 20px; text-shadow: 0 0 5px #0f0;
+        body { margin:0; padding:0; background:#000; color:#0f0; font-family:monospace; font-size:18px; overflow:hidden; }
+        .screen { max-width:480px; margin:0 auto; border:8px solid #222; background:#001100; padding:10px; min-height:100vh; box-sizing:border-box; }
+        .header { text-align:center; color:#0f0; margin-bottom:10px; font-size:22px; text-shadow:0 0 8px #0f0; }
+        .menu { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px; }
+        .room-btn { 
+            background:#003300; color:#0f0; border:2px solid #0f0; padding:12px 15px; 
+            font-size:16px; flex:1 1 45%; text-align:center; border-radius:4px;
         }
         .chat { 
-            line-height: 1.5; height: 65vh; overflow-y: auto; 
-            border: 2px solid #0f0; padding: 10px; background: #000;
+            height:55vh; overflow-y:auto; border:2px solid #0f0; padding:10px; 
+            background:#000; line-height:1.5; margin-bottom:10px;
         }
-        input { 
-            width: 100%; background: #000; color: #0f0; 
-            border: 2px solid #0f0; padding: 12px; font-family: monospace; font-size: 16px;
-        }
-        button {
-            width: 100%; margin-top: 8px; background: #0f0; color: #000;
-            border: none; padding: 12px; font-family: monospace; font-size: 18px; font-weight: bold;
-        }
+        input { width:100%; background:#000; color:#0f0; border:2px solid #0f0; padding:12px; font-size:16px; }
+        button { width:100%; margin-top:8px; background:#0f0; color:#000; border:none; padding:14px; font-size:18px; font-weight:bold; }
     </style>
 </head>
 <body>
     <div class="screen">
         <div class="header">=== NEO WAP v2005 ===<br>Мобильный чат 2.0</div>
         
+        <div class="menu" id="menu"></div>
+        
         <div class="chat" id="chat"></div>
         
-        <input type="text" id="msg" placeholder="Напиши сюда... (как в старом WAP)" onkeypress="if(event.key==='Enter') sendMsg()">
+        <input type="text" id="msg" placeholder="Пиши сюда..." onkeypress="if(event.key==='Enter') sendMsg()">
         <button onclick="sendMsg()">Отправить</button>
     </div>
 
     <script>
-        // Инициализация Telegram Mini App
         const tg = window.Telegram.WebApp;
-        tg.expand();           // Полноэкранный режим
-        tg.ready();            // Говорим Telegram, что всё готово
-        tg.MainButton.hide();  // Скрываем ненужную кнопку
+        tg.expand();
+        tg.ready();
+
+        let currentRoom = "ICQ Hall 2005";
+
+        const rooms = [
+            { name: "ICQ Hall 2005", emoji: "💬" },
+            { name: "Tamagotchi Park", emoji: "🐹" },
+            { name: "Дворовая тусовка", emoji: "🏠" },
+            { name: "Nokia Ringtone Club", emoji: "📱" },
+            { name: "Знакомства 00-х", emoji: "❤️" }
+        ];
+
+        function renderMenu() {
+            const menu = document.getElementById('menu');
+            menu.innerHTML = rooms.map(room => `
+                <div class="room-btn" onclick="switchRoom('${room.name}')">
+                    ${room.emoji} ${room.name}
+                </div>
+            `).join('');
+        }
+
+        function switchRoom(roomName) {
+            currentRoom = roomName;
+            document.getElementById('chat').innerHTML = `<div><b>WAP-Host:</b> Ты вошёл в комнату <b>${roomName}</b> 👾</div>`;
+            addMessage('Привет, братан! Здесь все из 2005-го. О чём потрещим?');
+        }
 
         function addMessage(text, isUser = false) {
             const chat = document.getElementById('chat');
-            const prefix = isUser ? '<b>Ты:</b> ' : '<b>WAP-Host:</b> ';
+            const prefix = isUser ? '<b>Ты:</b> ' : `<b>[${currentRoom}] WAP-Host:</b> `;
             chat.innerHTML += `<div>\( {prefix} \){text}</div>`;
             chat.scrollTop = chat.scrollHeight;
         }
@@ -64,23 +77,24 @@
             
             addMessage(input.value, true);
             
-            // Симуляция ответа AI-хоста (пока простой)
+            // Симуляция ответа хоста
             setTimeout(() => {
-                addMessage('Эй, братан! Помнишь, как в 2005-м в WAP-чате сидели? 🔥 Что у тебя было любимым — ICQ, Tamagotchi или Dendy?');
-            }, 800);
+                const responses = [
+                    "Помнишь, как в аське статус «Не беспокоить» ставили? 😂",
+                    "А у тебя какой был любимый рингтон на Nokia?",
+                    "Тут все свои. Расскажи, какой у тебя был Tamagotchi?",
+                    "Круто, что ты здесь. Давай найдём тебе пару по ностальгии?"
+                ];
+                addMessage(responses[Math.floor(Math.random() * responses.length)]);
+            }, 700);
             
             input.value = '';
         }
 
-        // Приветствие при запуске
+        // Запуск
         window.onload = function() {
-            addMessage('Добро пожаловать обратно в 2005-й! 👾');
-            addMessage('Я — WAP-Host. Пиши что угодно или жди следующих комнат.');
-            
-            // Показываем информацию о пользователе (для теста)
-            if (tg.initDataUnsafe.user) {
-                console.log('Пользователь:', tg.initDataUnsafe.user);
-            }
+            renderMenu();
+            switchRoom("ICQ Hall 2005"); // стартовая комната
         };
     </script>
 </body>
