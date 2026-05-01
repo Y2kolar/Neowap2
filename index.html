@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeoWAP v1.6</title>
+    <title>NeoWAP v2.1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {margin:0;padding:0;background:#000;color:#0f0;font-family:monospace;font-size:18px;overflow:hidden;}
@@ -38,71 +38,87 @@
 
         let currentRoom = "ICQ Hall 2005";
         let userNick = "Sabrina";
+        let GROQ_API_KEY = localStorage.getItem('groq_key') || '';
+
+        const rooms = [
+            {name: "ICQ Hall 2005", emoji: "💬"},
+            {name: "Tamagotchi Park", emoji: "🐹"},
+            {name: "Дворовая тусовка", emoji: "🏠"},
+            {name: "Nokia Ringtone Club", emoji: "📱"},
+            {name: "Знакомства 00-х", emoji: "❤️"}
+        ];
 
         function renderMenu() {
-            document.getElementById("menu").innerHTML = 
-                '<div class="room-btn" onclick="window.switchRoom(\'ICQ Hall 2005\')">💬 ICQ Hall 2005</div>' +
-                '<div class="room-btn" onclick="window.switchRoom(\'Tamagotchi Park\')">🐹 Tamagotchi Park</div>' +
-                '<div class="room-btn" onclick="window.switchRoom(\'Дворовая тусовка\')">🏠 Дворовая тусовка</div>' +
-                '<div class="room-btn" onclick="window.switchRoom(\'Nokia Ringtone Club\')">📱 Nokia Ringtone Club</div>' +
-                '<div class="room-btn" onclick="window.switchRoom(\'Знакомства 00-х\')">❤️ Знакомства 00-х</div>';
+            let html = '';
+            rooms.forEach(r => {
+                html += `<div class="room-btn" onclick="window.switchRoom('\( {r.name}')"> \){r.emoji} ${r.name}</div>`;
+            });
+            document.getElementById("menu").innerHTML = html;
         }
 
         window.switchRoom = function(roomName) {
             currentRoom = roomName;
-            var chat = document.getElementById("chat");
-            chat.innerHTML = '<div><b>WAP-Host:</b> Ты вошёл в комнату <b>' + roomName + '</b> 👾</div>';
+            const chat = document.getElementById("chat");
+            chat.innerHTML = `<div><b>WAP-Host:</b> Ты вошёл в комнату <b>${roomName}</b> 👾</div>`;
             addMessage("Привет из 2005-го! Чем сегодня займёмся?");
         };
 
-        function addMessage(text, isUser) {
-            var chat = document.getElementById("chat");
-            var prefix = isUser ? "<b>" + userNick + ":</b> " : "<b>[" + currentRoom + "] WAP-Host:</b> ";
-            chat.innerHTML += "<div>" + prefix + text + "</div>";
+        function addMessage(text, isUser = false) {
+            const chat = document.getElementById("chat");
+            const prefix = isUser ? `<b>\( {userNick}:</b> ` : `<b>[ \){currentRoom}] WAP-Host:</b> `;
+            chat.innerHTML += `<div>\( {prefix} \){text}</div>`;
             chat.scrollTop = chat.scrollHeight;
         }
 
-        window.sendMsg = function() {
-            var input = document.getElementById("msg");
+        async function callGroq(message) {
+            const thinkingId = "think" + Date.now();
+            const chat = document.getElementById("chat");
+            chat.innerHTML += `<div id="${thinkingId}" class="thinking">WAP-Host думает...</div>`;
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            {role: "system", content: `Ты — WAP-Host, дружелюбный ведущий ретро-чатов 2005 года. Говори тепло, с ностальгией, используй сленг 00-х. Помогай людям преодолевать робость, одиночество и нерешительность. Текущая комната: ${currentRoom}.`},
+                            {role: "user", content: message}
+                        ],
+                        temperature: 0.85,
+                        max_tokens: 500
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(thinkingId).remove();
+                return data.choices[0].message.content;
+            } catch(e) {
+                document.getElementById(thinkingId).remove();
+                return "Ошибка связи. Проверь интернет или ключ.";
+            }
+        }
+
+        window.sendMsg = async function() {
+            const input = document.getElementById("msg");
             if (input.value.trim() === "") return;
             
             addMessage(input.value, true);
-            
-            var chat = document.getElementById("chat");
-            var thinkingId = "think" + Date.now();
-            chat.innerHTML += '<div id="' + thinkingId + '" class="thinking">WAP-Host печатает...</div>';
-            chat.scrollTop = chat.scrollHeight;
-            
-            setTimeout(function() {
-                document.getElementById(thinkingId).remove();
-                
-                var response = "Круто сказано! А помнишь, как в 2005-м...";
-                if (currentRoom.includes("ICQ")) response = "UIN был 123456789? 😂 Расскажи свой старый статус!";
-                else if (currentRoom.includes("Tamagotchi")) response = "Мой Tamagotchi умер за ночь... А у тебя как было?";
-                else if (currentRoom.includes("Дворовая")) response = "Кто тут тоже по крышам лазил?";
-                else if (currentRoom.includes("Nokia")) response = "Твой любимый рингтон — Crazy Frog? 🔥";
-                else if (currentRoom.includes("Знакомства")) response = "Здесь анонимно. Хочешь, подкину тебе человека с похожими воспоминаниями?";
-                
-                addMessage(response, false);
-            }, 1100);
-            
+            const userMessage = input.value;
             input.value = "";
-            input.focus();   // сразу возвращаем курсор
-        };
 
-        window.onload = function() {
-            renderMenu();
-            
-            userNick = prompt("Как тебя звать в NeoWAP?", userNick) || userNick;
-            document.getElementById("nickname-bar").innerHTML = "👤 Ты — <b>" + userNick + "</b>";
-            
-            window.switchRoom("ICQ Hall 2005");
-            
-            // Автофокус на поле ввода
-            setTimeout(() => {
-                document.getElementById("msg").focus();
-            }, 500);
-        };
-    </script>
-</body>
-</html>
+            if (!GROQ_API_KEY) {
+                GROQ_API_KEY = prompt("Введи свой Groq API ключ (начинается на gsk_...):");
+                if (GROQ_API_KEY) {
+                    localStorage.setItem('groq_key', GROQ_API_KEY);
+                } else {
+                    addMessage("Ключ не введён. AI не работает.", false);
+                    return;
+                }
+            }
+
+            const aiResponse = await callGroq(userMessage
