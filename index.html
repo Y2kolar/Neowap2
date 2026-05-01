@@ -3,31 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeoWAP v1.4</title>
+    <title>NeoWAP v1.5</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { margin:0; padding:0; background:#000; color:#0f0; font-family:monospace; font-size:18px; overflow:hidden; }
-        .screen { max-width:480px; margin:0 auto; border:8px solid #222; background:#001100; padding:10px; min-height:100vh; box-sizing:border-box; }
-        .header { text-align:center; color:#0f0; margin-bottom:10px; font-size:22px; text-shadow:0 0 8px #0f0; }
-        .menu { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px; }
-        .room-btn { 
-            background:#003300; color:#0f0; border:2px solid #0f0; padding:12px 15px; 
-            font-size:16px; flex:1 1 45%; text-align:center; border-radius:4px;
-        }
-        .chat { 
-            height:52vh; overflow-y:auto; border:2px solid #0f0; padding:10px; 
-            background:#000; line-height:1.5; margin-bottom:10px;
-        }
-        .thinking { color:#0a0; font-style:italic; }
-        input { width:100%; background:#000; color:#0f0; border:2px solid #0f0; padding:12px; font-size:16px; }
-        button { width:100%; margin-top:8px; background:#0f0; color:#000; border:none; padding:14px; font-size:18px; font-weight:bold; }
+        body {margin:0;padding:0;background:#000;color:#0f0;font-family:monospace;font-size:18px;overflow:hidden;}
+        .screen {max-width:480px;margin:0 auto;border:8px solid #222;background:#001100;padding:10px;min-height:100vh;box-sizing:border-box;}
+        .header {text-align:center;color:#0f0;margin-bottom:10px;font-size:22px;text-shadow:0 0 8px #0f0;}
+        .menu {display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;}
+        .room-btn {background:#003300;color:#0f0;border:2px solid #0f0;padding:12px 15px;font-size:16px;flex:1 1 45%;text-align:center;border-radius:4px;}
+        .chat {height:52vh;overflow-y:auto;border:2px solid #0f0;padding:10px;background:#000;line-height:1.5;margin-bottom:10px;}
+        .thinking {color:#0a0;font-style:italic;}
+        input {width:100%;background:#000;color:#0f0;border:2px solid #0f0;padding:12px;font-size:16px;}
+        button {width:100%;margin-top:8px;background:#0f0;color:#000;border:none;padding:14px;font-size:18px;font-weight:bold;}
     </style>
 </head>
 <body>
     <div class="screen">
         <div class="header">=== NEO WAP v2005 ===<br>Мобильный чат 2.0</div>
         
-        <div id="nickname-bar" style="text-align:center; margin-bottom:10px; font-size:16px; color:#0a0;"></div>
+        <div id="nickname-bar" style="text-align:center;margin-bottom:10px;font-size:16px;color:#0a0;"></div>
         
         <div class="menu" id="menu"></div>
         
@@ -38,38 +32,73 @@
     </div>
 
     <script>
+        // Telegram Mini App
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
 
         let currentRoom = "ICQ Hall 2005";
-        let userNick = "Shadow_1998";
-
-        const rooms = [
-            { name: "ICQ Hall 2005", emoji: "💬" },
-            { name: "Tamagotchi Park", emoji: "🐹" },
-            { name: "Дворовая тусовка", emoji: "🏠" },
-            { name: "Nokia Ringtone Club", emoji: "📱" },
-            { name: "Знакомства 00-х", emoji: "❤️" }
-        ];
+        let userNick = "Sabrina";
 
         function renderMenu() {
-            const menu = document.getElementById('menu');
-            let html = '';
-            for (let i = 0; i < rooms.length; i++) {
-                const room = rooms[i];
-                html += `<div class="room-btn" onclick="switchRoom('\( {room.name}')"> \){room.emoji} ${room.name}</div>`;
-            }
-            menu.innerHTML = html;
+            document.getElementById("menu").innerHTML = 
+                '<div class="room-btn" onclick="switchRoom(\'ICQ Hall 2005\')">💬 ICQ Hall 2005</div>' +
+                '<div class="room-btn" onclick="switchRoom(\'Tamagotchi Park\')">🐹 Tamagotchi Park</div>' +
+                '<div class="room-btn" onclick="switchRoom(\'Дворовая тусовка\')">🏠 Дворовая тусовка</div>' +
+                '<div class="room-btn" onclick="switchRoom(\'Nokia Ringtone Club\')">📱 Nokia Ringtone Club</div>' +
+                '<div class="room-btn" onclick="switchRoom(\'Знакомства 00-х\')">❤️ Знакомства 00-х</div>';
         }
 
         function switchRoom(roomName) {
             currentRoom = roomName;
-            const chat = document.getElementById('chat');
-            chat.innerHTML = `<div><b>WAP-Host:</b> Ты вошёл в комнату <b>${roomName}</b> 👾</div>`;
-            addMessage('Привет из 2005-го! Чем сегодня займёмся?');
+            var chat = document.getElementById("chat");
+            chat.innerHTML = '<div><b>WAP-Host:</b> Ты вошёл в комнату <b>' + roomName + '</b> 👾</div>';
+            addMessage("Привет из 2005-го! Чем сегодня займёмся?");
         }
 
-        function addMessage(text, isUser = false) {
-            const chat = document.getElementById('chat');
-            const prefix = isUser ? `<b>\( {userNick}:</b> ` : `<b>[ \){currentRoom}] WAP-Host:</
+        function addMessage(text, isUser) {
+            var chat = document.getElementById("chat");
+            var prefix = isUser ? "<b>" + userNick + ":</b> " : "<b>[" + currentRoom + "] WAP-Host:</b> ";
+            chat.innerHTML += "<div>" + prefix + text + "</div>";
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function sendMsg() {
+            var input = document.getElementById("msg");
+            if (input.value.trim() === "") return;
+            
+            addMessage(input.value, true);
+            
+            var chat = document.getElementById("chat");
+            var thinkingId = "think" + Date.now();
+            chat.innerHTML += '<div id="' + thinkingId + '" class="thinking">WAP-Host печатает...</div>';
+            chat.scrollTop = chat.scrollHeight;
+            
+            setTimeout(function() {
+                document.getElementById(thinkingId).remove();
+                
+                var response = "Круто сказано! А помнишь, как в 2005-м...";
+                if (currentRoom.includes("ICQ")) response = "UIN был 123456789? 😂 Расскажи свой старый статус!";
+                else if (currentRoom.includes("Tamagotchi")) response = "Мой Tamagotchi умер за ночь... А у тебя как было?";
+                else if (currentRoom.includes("Дворовая")) response = "Кто тут тоже по крышам лазил?";
+                else if (currentRoom.includes("Nokia")) response = "Твой любимый рингтон — Crazy Frog? 🔥";
+                else if (currentRoom.includes("Знакомства")) response = "Здесь анонимно. Хочешь, подкину тебе человека с похожими воспоминаниями?";
+                
+                addMessage(response, false);
+            }, 1100);
+            
+            input.value = "";
+        }
+
+        // Запуск
+        window.onload = function() {
+            renderMenu();
+            
+            userNick = prompt("Как тебя звать в NeoWAP?", userNick) || userNick;
+            document.getElementById("nickname-bar").innerHTML = "👤 Ты — <b>" + userNick + "</b>";
+            
+            switchRoom("ICQ Hall 2005");
+        };
+    </script>
+</body>
+</html>
