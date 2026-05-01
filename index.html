@@ -1,159 +1,290 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeoWAP • 2007</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {margin:0;padding:0;background:#0a0a0a;color:#0f0;font-family:monospace;font-size:16px;overflow:hidden;}
-        .screen {max-width:480px;margin:0 auto;background:#111;min-height:100vh;box-sizing:border-box;position:relative;}
-        .header {text-align:center;color:#0f0;padding:10px;background:#1a1a1a;border-bottom:2px solid #0f0;font-size:20px;text-shadow:0 0 8px #0f0;}
-        .status {padding:8px 15px;background:#1a1a1a;border-bottom:1px solid #0f0;font-size:14px;color:#0a0;display:flex;justify-content:space-between;}
-        .menu {padding:10px;display:flex;flex-direction:column;gap:8px;}
-        .room-btn {background:#1a1a1a;border:1px solid #0f0;color:#0f0;padding:12px 15px;border-radius:4px;display:flex;align-items:center;gap:12px;}
-        .room-btn:hover {background:#222;}
-        .chat {height:50vh;overflow-y:auto;padding:10px;background:#0a0a0a;}
-        .thinking {color:#0a0;font-style:italic;padding:5px 0;}
-        input {width:100%;background:#1a1a1a;color:#0f0;border:1px solid #0f0;padding:12px;font-size:16px;}
-        button {width:100%;margin-top:8px;background:#0f0;color:#000;border:none;padding:14px;font-size:18px;font-weight:bold;}
-        .bottom-nav {position:fixed;bottom:0;width:100%;max-width:480px;background:#1a1a1a;border-top:2px solid #0f0;display:flex;justify-content:space-around;padding:8px 0;}
-        .nav-item {text-align:center;color:#0a0;font-size:12px;}
-        .key-btn {margin:10px;background:#330000;color:#ff0;border:1px solid #ff0;padding:10px;text-align:center;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeoWAP</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body {
+    margin:0;
+    background:#0b0f0d;
+    color:#b7f7c0;
+    font-family: monospace;
+}
+
+.screen {
+    max-width:480px;
+    margin:auto;
+    min-height:100vh;
+    padding-bottom:80px;
+}
+
+/* HEADER */
+.header {
+    text-align:center;
+    padding:12px;
+    font-size:20px;
+    color:#6eff9e;
+    letter-spacing:1px;
+}
+
+/* STATUS */
+.status {
+    font-size:13px;
+    padding:10px 15px;
+    color:#7aa88a;
+}
+
+/* CARDS */
+.menu {
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.card {
+    background:#0f1512;
+    border:1px solid #1f3a2d;
+    border-radius:10px;
+    padding:14px;
+    transition:0.2s;
+}
+
+.card:hover {
+    border-color:#3ddc84;
+    box-shadow:0 0 10px rgba(61,220,132,0.2);
+}
+
+.card-title {
+    color:#6eff9e;
+    font-size:16px;
+}
+
+.card-desc {
+    font-size:13px;
+    color:#7aa88a;
+}
+
+/* CHAT */
+.chat {
+    padding:10px;
+    height:40vh;
+    overflow:auto;
+}
+
+.msg {
+    margin-bottom:10px;
+    max-width:85%;
+    padding:10px;
+    border-radius:10px;
+    background:#0f1512;
+    border:1px solid #1f3a2d;
+}
+
+.me {
+    margin-left:auto;
+    background:#13221a;
+}
+
+.typing {
+    font-size:12px;
+    color:#7aa88a;
+    padding:5px;
+}
+
+/* INPUT */
+.input-box {
+    position:fixed;
+    bottom:60px;
+    width:100%;
+    max-width:480px;
+    background:#0b0f0d;
+    padding:10px;
+}
+
+input {
+    width:100%;
+    padding:12px;
+    background:#0f1512;
+    border:1px solid #1f3a2d;
+    border-radius:8px;
+    color:#b7f7c0;
+}
+
+input:focus {
+    outline:none;
+    border-color:#3ddc84;
+}
+
+/* BUTTON */
+button {
+    margin-top:8px;
+    width:100%;
+    padding:12px;
+    background:#3ddc84;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+/* NAV */
+.nav {
+    position:fixed;
+    bottom:0;
+    width:100%;
+    max-width:480px;
+    display:flex;
+    justify-content:space-around;
+    background:#0f1512;
+    padding:10px 0;
+    border-top:1px solid #1f3a2d;
+    font-size:12px;
+    color:#7aa88a;
+}
+</style>
 </head>
+
 <body>
-    <div class="screen">
-        <div class="header">NeoWAP • вернуться в 2007</div>
-        
-        <div class="status">
-            <div>● Сейчас в сети: 142</div>
-            <div>Поздняя ночь. Самое время для честных разговоров.</div>
-        </div>
-        
-        <div id="nickname-bar" style="padding:5px 15px;background:#1a1a1a;color:#0a0;font-size:14px;"></div>
-        
-        <div class="menu" id="menu"></div>
-        
-        <button class="key-btn" onclick="enterKey()">Ввести Groq ключ</button>
-        
-        <div class="chat" id="chat"></div>
-        
-        <input type="text" id="msg" placeholder="Напиши что-нибудь..." onkeypress="if(event.key==='Enter') window.sendMsg()">
-        <button onclick="window.sendMsg()">Отправить</button>
-        
-        <div class="bottom-nav">
-            <div class="nav-item">🏠<br>Главная</div>
-            <div class="nav-item">💬<br>Комнаты</div>
-            <div class="nav-item">✉️<br>Сообщения</div>
-            <div class="nav-item">👤<br>Профиль</div>
-        </div>
-    </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+<div class="screen">
 
-        let currentRoom = "ICQ Hall 2005-2007";
-        let userNick = "Sabrina";
-        let GROQ_API_KEY = localStorage.getItem('groq_key') || '';
+<div class="header">NeoWAP</div>
 
-        const rooms = [
-            {name: "Tamagotchi Park", emoji: "🐹", desc: "Поговори о том, что действительно важно"},
-            {name: "Дворовая тусовка", emoji: "🏠", desc: "Ламповый чат обо всём на свете"},
-            {name: "Nokia Ringtone Club", emoji: "📱", desc: "Музыка, ностальгия, обмен рингтонами"},
-            {name: "Знакомства 00-х", emoji: "❤️", desc: "Найди того, с кем совпадает настроение"},
-            {name: "Emo & Scene Corner", emoji: "🖤", desc: "Для тех, кто понимает"}
-        ];
+<div class="status">
+    ● Сейчас онлайн: 137<br>
+    Поздняя ночь. Обычно в это время говорят честнее.
+</div>
 
-        function renderMenu() {
-            let html = '';
-            for (var i = 0; i < rooms.length; i++) {
-                var r = rooms[i];
-                html += '<div class="room-btn" onclick="window.switchRoom(\'' + r.name + '\')">' + r.emoji + ' <strong>' + r.name + '</strong><br><small>' + r.desc + '</small></div>';
-            }
-            document.getElementById("menu").innerHTML = html;
-        }
+<div class="menu" id="menu"></div>
 
-        window.switchRoom = function(roomName) {
-            currentRoom = roomName;
-            var chat = document.getElementById("chat");
-            chat.innerHTML = '<div><b>WAP-Host:</b> Ты вошёл в комнату <b>' + roomName + '</b> 👾</div>';
-            addMessage("Привет из 2005-2007! Расцвет и закат субкультур. Чем сегодня ностальгируем?");
-        };
+<div class="chat" id="chat"></div>
 
-        function addMessage(text, isUser) {
-            var chat = document.getElementById("chat");
-            var prefix = isUser ? "<b>" + userNick + ":</b> " : "<b>[" + currentRoom + "] WAP-Host:</b> ";
-            chat.innerHTML += "<div>" + prefix + text + "</div>";
-            chat.scrollTop = chat.scrollHeight;
-        }
+<div id="typing" class="typing"></div>
 
-        function enterKey() {
-            var key = prompt("Введи Groq API ключ (gsk_...):", GROQ_API_KEY);
-            if (key) {
-                GROQ_API_KEY = key;
-                localStorage.setItem('groq_key', key);
-                addMessage("Ключ сохранён! AI-хост на связи.", false);
-            }
-        }
+<div class="input-box">
+    <input id="msg" placeholder="Напиши что-нибудь… даже одно слово подойдёт">
+    <button onclick="sendMsg()">Отправить</button>
+</div>
 
-        async function callGroq(message) {
-            if (!GROQ_API_KEY) {
-                addMessage("Сначала нажми 'Ввести Groq ключ'", false);
-                return;
-            }
-            var thinkingId = "think" + Date.now();
-            var chat = document.getElementById("chat");
-            chat.innerHTML += '<div id="' + thinkingId + '" class="thinking">WAP-Host думает...</div>';
-            chat.scrollTop = chat.scrollHeight;
+<div class="nav">
+    <div>🏠</div>
+    <div>💬</div>
+    <div>✉️</div>
+    <div>👤</div>
+</div>
 
-            try {
-                var response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + GROQ_API_KEY
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [
-                            {role: "system", content: "Ты — WAP-Host, ведущий чатов 2000–2007. Особенно 2005–2007 — расцвет и начало заката субкультур (emo, scene, goth, дворовые тусовки, русский поп, Tamagotchi, Nokia, ICQ). Ты тёплый, ностальгический, помогаешь с одиночеством и робкостью. Шевелишь людей, запоминаешь интересы, предлагаешь матчи и представляешь их тепло."},
-                            {role: "user", content: message}
-                        ],
-                        temperature: 0.9,
-                        max_tokens: 600
-                    })
-                });
-                var data = await response.json();
-                document.getElementById(thinkingId).remove();
-                return data.choices[0].message.content;
-            } catch(e) {
-                document.getElementById(thinkingId).remove();
-                return "Ошибка связи. Проверь интернет.";
-            }
-        }
+</div>
 
-        window.sendMsg = async function() {
-            var input = document.getElementById("msg");
-            if (input.value.trim() === "") return;
-            
-            addMessage(input.value, true);
-            var userMessage = input.value;
-            input.value = "";
+<script>
+const rooms = [
+    {name:"Tamagotchi Park", desc:"Поговори о важном"},
+    {name:"Дворовая тусовка", desc:"Ламповый чат"},
+    {name:"Nokia Club", desc:"Музыка и ностальгия"},
+    {name:"Знакомства 00-х", desc:"Найди своего человека"}
+];
 
-            var aiResponse = await callGroq(userMessage);
-            addMessage(aiResponse, false);
-        };
+let currentRoom = "Главная";
+let GROQ_API_KEY = localStorage.getItem('groq_key') || '';
+let userNick = "Ты";
 
-        window.onload = function() {
-            renderMenu();
-            userNick = prompt("Как тебя звать в NeoWAP?", userNick) || userNick;
-            document.getElementById("nickname-bar").innerHTML = "👤 " + userNick;
-            window.switchRoom("ICQ Hall 2005-2007");
-            setTimeout(() => document.getElementById("msg").focus(), 500);
-        };
-    </script>
+function renderMenu(){
+    let html='';
+    rooms.forEach(r=>{
+        html+=`
+        <div class="card" onclick="enterRoom('${r.name}')">
+            <div class="card-title">${r.name}</div>
+            <div class="card-desc">${r.desc}</div>
+        </div>`;
+    });
+    document.getElementById("menu").innerHTML = html;
+}
+
+function enterRoom(name){
+    currentRoom = name;
+    addMsg("Ты зашёл в "+name, false);
+    addMsg("Иногда проще говорить с незнакомцем. Попробуем?", false);
+}
+
+function addMsg(text, me){
+    let div = document.createElement("div");
+    div.className = "msg" + (me ? " me" : "");
+    div.innerText = text;
+    document.getElementById("chat").appendChild(div);
+    document.getElementById("chat").scrollTop = 9999;
+}
+
+function showTyping(){
+    document.getElementById("typing").innerText = "Sabrina печатает...";
+}
+
+function hideTyping(){
+    document.getElementById("typing").innerText = "";
+}
+
+async function callAI(text){
+    if(!GROQ_API_KEY){
+        let key = prompt("Введи Groq ключ:");
+        if(key){
+            GROQ_API_KEY = key;
+            localStorage.setItem('groq_key', key);
+        } else return "Нет ключа.";
+    }
+
+    showTyping();
+
+    await new Promise(r=>setTimeout(r, 1200)); // пауза
+
+    try{
+        let res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer "+GROQ_API_KEY
+            },
+            body:JSON.stringify({
+                model:"llama-3.3-70b-versatile",
+                messages:[
+                    {role:"system", content:"Ты Sabrina. Спокойная, живая, немного ностальгическая. Помогаешь человеку раскрыться."},
+                    {role:"user", content:text}
+                ]
+            })
+        });
+
+        let data = await res.json();
+        hideTyping();
+        return data.choices[0].message.content;
+
+    }catch(e){
+        hideTyping();
+        return "Связь потерялась… попробуем ещё?";
+    }
+}
+
+async function sendMsg(){
+    let input = document.getElementById("msg");
+    let text = input.value.trim();
+    if(!text) return;
+
+    addMsg(text, true);
+    input.value = "";
+
+    let reply = await callAI(text);
+    addMsg(reply, false);
+
+    // шанс предложить приват
+    if(Math.random() > 0.7){
+        setTimeout(()=>{
+            addMsg("Похоже, ты готов к личному диалогу. Хочешь перейти?", false);
+        }, 1500);
+    }
+}
+
+renderMenu();
+</script>
+
 </body>
 </html>
