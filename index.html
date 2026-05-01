@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeoWAP v1.5</title>
+    <title>NeoWAP v1.6</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {margin:0;padding:0;background:#000;color:#0f0;font-family:monospace;font-size:18px;overflow:hidden;}
@@ -27,12 +27,11 @@
         
         <div class="chat" id="chat"></div>
         
-        <input type="text" id="msg" placeholder="Пиши сюда..." onkeypress="if(event.key==='Enter') sendMsg()">
-        <button onclick="sendMsg()">Отправить</button>
+        <input type="text" id="msg" placeholder="Пиши сюда..." onkeypress="if(event.key==='Enter') window.sendMsg()">
+        <button onclick="window.sendMsg()">Отправить</button>
     </div>
 
     <script>
-        // Telegram Mini App
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
@@ -42,19 +41,19 @@
 
         function renderMenu() {
             document.getElementById("menu").innerHTML = 
-                '<div class="room-btn" onclick="switchRoom(\'ICQ Hall 2005\')">💬 ICQ Hall 2005</div>' +
-                '<div class="room-btn" onclick="switchRoom(\'Tamagotchi Park\')">🐹 Tamagotchi Park</div>' +
-                '<div class="room-btn" onclick="switchRoom(\'Дворовая тусовка\')">🏠 Дворовая тусовка</div>' +
-                '<div class="room-btn" onclick="switchRoom(\'Nokia Ringtone Club\')">📱 Nokia Ringtone Club</div>' +
-                '<div class="room-btn" onclick="switchRoom(\'Знакомства 00-х\')">❤️ Знакомства 00-х</div>';
+                '<div class="room-btn" onclick="window.switchRoom(\'ICQ Hall 2005\')">💬 ICQ Hall 2005</div>' +
+                '<div class="room-btn" onclick="window.switchRoom(\'Tamagotchi Park\')">🐹 Tamagotchi Park</div>' +
+                '<div class="room-btn" onclick="window.switchRoom(\'Дворовая тусовка\')">🏠 Дворовая тусовка</div>' +
+                '<div class="room-btn" onclick="window.switchRoom(\'Nokia Ringtone Club\')">📱 Nokia Ringtone Club</div>' +
+                '<div class="room-btn" onclick="window.switchRoom(\'Знакомства 00-х\')">❤️ Знакомства 00-х</div>';
         }
 
-        function switchRoom(roomName) {
+        window.switchRoom = function(roomName) {
             currentRoom = roomName;
             var chat = document.getElementById("chat");
             chat.innerHTML = '<div><b>WAP-Host:</b> Ты вошёл в комнату <b>' + roomName + '</b> 👾</div>';
             addMessage("Привет из 2005-го! Чем сегодня займёмся?");
-        }
+        };
 
         function addMessage(text, isUser) {
             var chat = document.getElementById("chat");
@@ -63,7 +62,7 @@
             chat.scrollTop = chat.scrollHeight;
         }
 
-        function sendMsg() {
+        window.sendMsg = function() {
             var input = document.getElementById("msg");
             if (input.value.trim() === "") return;
             
@@ -88,16 +87,21 @@
             }, 1100);
             
             input.value = "";
-        }
+            input.focus();   // сразу возвращаем курсор
+        };
 
-        // Запуск
         window.onload = function() {
             renderMenu();
             
             userNick = prompt("Как тебя звать в NeoWAP?", userNick) || userNick;
             document.getElementById("nickname-bar").innerHTML = "👤 Ты — <b>" + userNick + "</b>";
             
-            switchRoom("ICQ Hall 2005");
+            window.switchRoom("ICQ Hall 2005");
+            
+            // Автофокус на поле ввода
+            setTimeout(() => {
+                document.getElementById("msg").focus();
+            }, 500);
         };
     </script>
 </body>
