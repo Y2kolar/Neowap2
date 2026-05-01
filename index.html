@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeoWAP v1.2</title>
+    <title>NeoWAP v1.3</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { margin:0; padding:0; background:#000; color:#0f0; font-family:monospace; font-size:18px; overflow:hidden; }
@@ -43,7 +43,7 @@
         tg.ready();
 
         let currentRoom = "ICQ Hall 2005";
-        let userNick = "Shadow_1998";   // по умолчанию
+        let userNick = "Shadow_1998";
 
         const rooms = [
             { name: "ICQ Hall 2005", emoji: "💬" },
@@ -56,17 +56,15 @@
         function renderMenu() {
             const menu = document.getElementById('menu');
             menu.innerHTML = rooms.map(room => `
-                <div class="room-btn" onclick="switchRoom('${room.name}')">
-                    ${room.emoji} ${room.name}
-                </div>
+                <div class="room-btn" onclick="switchRoom('\( {room.name}')"> \){room.emoji} ${room.name}</div>
             `).join('');
         }
 
         function switchRoom(roomName) {
             currentRoom = roomName;
             const chat = document.getElementById('chat');
-            chat.innerHTML = `<div><b>WAP-Host:</b> Ты вошёл в <b>${roomName}</b> 👾</div>`;
-            addMessage('Всем привет из 2005-го! Я — твой WAP-Host. Чем сегодня займёмся?');
+            chat.innerHTML = `<div><b>WAP-Host:</b> Ты вошёл в комнату <b>${roomName}</b> 👾</div>`;
+            addMessage('Привет из 2005-го! Чем сегодня займёмся?');
         }
 
         function addMessage(text, isUser = false) {
@@ -76,49 +74,42 @@
             chat.scrollTop = chat.scrollHeight;
         }
 
-        function showThinking() {
-            const chat = document.getElementById('chat');
-            const id = 'thinking-' + Date.now();
-            chat.innerHTML += `<div id="${id}" class="thinking">WAP-Host печатает...</div>`;
-            chat.scrollTop = chat.scrollHeight;
-            return id;
-        }
-
         function sendMsg() {
             const input = document.getElementById('msg');
             if (input.value.trim() === '') return;
             
             addMessage(input.value, true);
             
-            const thinkingId = showThinking();
+            const chat = document.getElementById('chat');
+            const thinkingId = 'think-' + Date.now();
+            chat.innerHTML += `<div id="${thinkingId}" class="thinking">WAP-Host печатает...</div>`;
+            chat.scrollTop = chat.scrollHeight;
             
             setTimeout(() => {
                 document.getElementById(thinkingId).remove();
                 
-                // Умные ответы в зависимости от комнаты
-                let response = "Круто сказано! А ты помнишь, как в 2005-м...";
-                
-                if (currentRoom === "ICQ Hall 2005") {
-                    response = "UIN был 123456789? 😂 Расскажи свой старый статус в аське!";
-                } else if (currentRoom === "Tamagotchi Park") {
-                    response = "Мой Tamagotchi умер от голода за ночь... А у тебя как было?";
-                } else if (currentRoom === "Дворовая тусовка") {
-                    response = "Эй, кто тут тоже по крышам лазил и в «казаки-разбойники» играл?";
-                } else if (currentRoom === "Nokia Ringtone Club") {
-                    response = "Твой любимый рингтон — Crazy Frog или «Мурка»? 🔥";
-                } else if (currentRoom === "Знакомства 00-х") {
-                    response = "Здесь все анонимно. Хочешь, подкину тебе человека с похожими воспоминаниями?";
-                }
+                let response = "Круто! А помнишь, как в 2005-м...";
+                if (currentRoom.includes("ICQ")) response = "UIN был 123456789? 😂 Расскажи свой старый статус!";
+                else if (currentRoom.includes("Tamagotchi")) response = "Мой Tamagotchi умер за ночь... А у тебя как было?";
+                else if (currentRoom.includes("Дворовая")) response = "Кто тут тоже по крышам лазил?";
+                else if (currentRoom.includes("Nokia")) response = "Твой любимый рингтон — Crazy Frog? 🔥";
+                else if (currentRoom.includes("Знакомства")) response = "Здесь анонимно. Хочешь, подкину тебе человека с похожими воспоминаниями?";
                 
                 addMessage(response);
-            }, 1200);
+            }, 1100);
             
             input.value = '';
         }
 
-        // Запуск
         window.onload = function() {
             renderMenu();
             
-            // Просим ник при первом запуске
-            if (confirm("Привет! Как тебя звать в NeoWAP? (например:
+            // Ник
+            userNick = prompt("Как тебя звать в NeoWAP? (например Shadow_1998)", userNick) || userNick;
+            document.getElementById('nickname-bar').innerHTML = `👤 Ты — <b>${userNick}</b>`;
+            
+            switchRoom("ICQ Hall 2005");
+        };
+    </script>
+</body>
+</html>
